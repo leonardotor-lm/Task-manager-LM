@@ -184,7 +184,7 @@ async function saveData() {
     if (!dbUrl) return;
     showSyncStatus('saving');
     try {
-        const response = await fetch(dbUrl, { 
+        const response = await fetch(getSecureDbUrl(), { 
             method: 'POST', 
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(tasks),
@@ -204,7 +204,7 @@ async function loadDataFromCloud() {
     if (!dbUrl) return false;
     showSyncStatus('loading');
     try {
-        const res = await fetch(dbUrl, { method: 'GET', redirect: 'follow' });
+        const res = await fetch(getSecureDbUrl(), { method: 'GET', redirect: 'follow' });
         if (!res.ok) throw new Error("Fallo HTTP: " + res.status);
         const textData = await res.text();
         
@@ -1418,7 +1418,7 @@ window.handleFileUpload = async function(event, mode) {
                 fileData: base64Content
             };
 
-            const response = await fetch(dbUrl, {
+            const response = await fetch(getSecureDbUrl(), {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(payload),
