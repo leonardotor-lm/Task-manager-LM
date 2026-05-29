@@ -4,6 +4,14 @@ const DB_URL_KEY = 'leo_agenda_db_url';
 const API_KEY_STORAGE_KEY = 'leo_gemini_api_key';
 
 let dbUrl = localStorage.getItem(DB_URL_KEY) || "";
+const SECURITY_TOKEN = "e7b8c9d0-f1a2-4b3c-9d8e-7f6a5b4c3d2e";
+function getSecureDbUrl() {
+    if (!dbUrl) return "";
+    
+    const separator = dbUrl.includes('?') ? '&' : '?';
+    
+    return dbUrl + separator + 'token=' + SECURITY_TOKEN;
+}
 let customApiKey = localStorage.getItem(API_KEY_STORAGE_KEY) || "";
 
 function safeParse(key, fallback) {
