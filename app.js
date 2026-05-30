@@ -754,8 +754,10 @@ function pruneTree(nodeList, inFocusedSubtree = false) {
     if (!Array.isArray(nodeList)) return [];
     const todayStr = formatDateLocal(new Date());
     const tomorrowObj = new Date(); tomorrowObj.setDate(tomorrowObj.getDate() + 1); const tomorrowStr = formatDateLocal(tomorrowObj);
-    const daysToSunday = tomorrowObj.getDay() === 0 ? 0 : 7 - tomorrowObj.getDay();
-    const endOfWeekObj = new Date(); endOfWeekObj.setDate(endOfWeekObj.getDate() + daysToSunday); const endOfWeekStr = formatDateLocal(endOfWeekObj);
+    
+    // CORRECCIÓN: Proyección de ventana móvil de 7 días exactos en lugar de límite de domingo
+    const nextWeekObj = new Date(); nextWeekObj.setDate(nextWeekObj.getDate() + 7); const nextWeekStr = formatDateLocal(nextWeekObj);
+    
     const fortnightObj = new Date(); fortnightObj.setDate(fortnightObj.getDate() + 15); const fortnightStr = formatDateLocal(fortnightObj);
     
     let filtered = nodeList.map(node => {
@@ -767,9 +769,11 @@ function pruneTree(nodeList, inFocusedSubtree = false) {
         if (currentFilters.status === 'completed' && node.status !== 'completed') matches = false; 
         if (currentFilters.priority !== 'all' && node.priority !== currentFilters.priority) matches = false; 
         if (currentFilters.context !== 'all' && node.context !== currentFilters.context) matches = false;
+        
         if (currentState.view === 'today') { if (!node.date || node.date > todayStr) matches = false; }
         else if (currentState.view === 'tomorrow') { if (!node.date || node.date !== tomorrowStr) matches = false; }
-        else if (currentState.view === 'week') { if (!node.date || node.date > endOfWeekStr) matches = false; }
+        // Se aplica el nuevo horizonte temporal en la evaluación de la vista semanal
+        else if (currentState.view === 'week') { if (!node.date || node.date > nextWeekStr) matches = false; }
         else if (currentState.view === 'fortnight') { if (!node.date || node.date > fortnightStr) matches = false; }
         else if (currentState.view === 'area') { if (node.area !== currentState.selectedArea) matches = false; }
         else if (currentState.view === 'focus') { if (!inFocusedSubtree && !containsFocusNode(node, currentState.focusTargetId)) matches = false; }
@@ -779,6 +783,7 @@ function pruneTree(nodeList, inFocusedSubtree = false) {
         if (matches || prunedSubtasks.length > 0) return { ...node, subtasks: prunedSubtasks, _explicitMatch: matches }; 
         return null;
     }).filter(Boolean);
+    
     return sortTasks(filtered);
 }
 
